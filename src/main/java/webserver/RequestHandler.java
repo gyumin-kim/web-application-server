@@ -27,11 +27,7 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            String requestUrl = "";
-            String[] tokens = line.split(" ");
-            if (tokens[0].equals("GET")) {
-                requestUrl = tokens[1];
-            }
+            String requestUrl = RequestLineParser.parseUrl(line);
             while (!line.equals("")) {
                 line = bufferedReader.readLine();
                 log.debug("line: {}", line);
