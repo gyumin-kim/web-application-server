@@ -7,6 +7,6 @@ public class RequestLineParser {
 		if (tokens[0].equals("GET")) {
 			return tokens[1];
 		}
-		return null;
+		return "";
 	}
 }

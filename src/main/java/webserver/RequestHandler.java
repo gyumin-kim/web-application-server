@@ -42,10 +42,15 @@ public class RequestHandler extends Thread {
     }
 
     private byte[] getBody(String url) throws IOException {
+        String pathname = getPathName(url);
+        return Files.readAllBytes(new File(pathname).toPath());
+    }
+
+    private String getPathName(final String url) {
         if (url.equals("/")) {
-            return "Hello World".getBytes();
+            return "./webapp/index.html";
         }
-        return Files.readAllBytes(new File("./webapp" + url).toPath());
+        return "./webapp" + url;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
