@@ -2,12 +2,12 @@ package webserver;
 
 public class RequestLineParser {
 
-	public static String parseUrl(final String line) {
+	public static String extractUrl(final String line) {
 		String[] tokens = line.split(" ");
 		return tokens[1];
 	}
 
-	public static String parseRequestPath(final String url) {
+	public static String extractRequestPath(final String url) {
 		if (!url.contains("?")) {
 			return url;
 		}
@@ -15,7 +15,7 @@ public class RequestLineParser {
 		return url.substring(0, index);
 	}
 
-	public static String parseQueryString(final String url) {
+	public static String extractQueryString(final String url) {
 		if (!url.contains("?")) {
 			return "";
 		}

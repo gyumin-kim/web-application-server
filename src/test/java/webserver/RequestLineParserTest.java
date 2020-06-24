@@ -14,7 +14,7 @@ class RequestLineParserTest {
 		String requestLine = "GET /index.html HTTP/1.1";
 
 		// when
-		String url = RequestLineParser.parseUrl(requestLine);
+		String url = RequestLineParser.extractUrl(requestLine);
 
 		// then
 		assertThat(url).isEqualTo("/index.html");
@@ -27,7 +27,7 @@ class RequestLineParserTest {
 		String url = "/user/create?userId=testId&password=1234&name=testName&email=test@email.com";
 
 		// when
-		String requestPath = RequestLineParser.parseRequestPath(url);
+		String requestPath = RequestLineParser.extractRequestPath(url);
 
 		// then
 		assertThat(requestPath).isEqualTo("/user/create");
@@ -40,7 +40,7 @@ class RequestLineParserTest {
 		String url = "/user/create";
 
 		// when
-		String requestPath = RequestLineParser.parseRequestPath(url);
+		String requestPath = RequestLineParser.extractRequestPath(url);
 
 		// then
 		assertThat(requestPath).isEqualTo(url);
@@ -53,7 +53,7 @@ class RequestLineParserTest {
 		String url = "/user/create?userId=testId&password=1234&name=testName&email=test@email.com";
 
 		// when
-		String queryString = RequestLineParser.parseQueryString(url);
+		String queryString = RequestLineParser.extractQueryString(url);
 
 		// then
 		assertThat(queryString).isEqualTo("userId=testId&password=1234&name=testName&email=test@email.com");
@@ -66,7 +66,7 @@ class RequestLineParserTest {
 		String url = "/user/create";
 
 		// when
-		String queryString = RequestLineParser.parseQueryString(url);
+		String queryString = RequestLineParser.extractQueryString(url);
 
 		// then
 		assertThat(queryString).isEmpty();

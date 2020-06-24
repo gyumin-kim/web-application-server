@@ -30,10 +30,10 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            String url = RequestLineParser.parseUrl(line);
-            String requestPath = RequestLineParser.parseRequestPath(url);
+            String url = RequestLineParser.extractUrl(line);
+            String requestPath = RequestLineParser.extractRequestPath(url);
             if (requestPath.equals("/user/create")) {
-                String queryString = RequestLineParser.parseQueryString(url);
+                String queryString = RequestLineParser.extractQueryString(url);
                 Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
                 String userId = parameters.get("userId");
                 String password = parameters.get("password");
