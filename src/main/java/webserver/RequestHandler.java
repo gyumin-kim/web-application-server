@@ -9,6 +9,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -32,19 +33,24 @@ public class RequestHandler extends Thread {
             }
             String url = RequestLineParser.extractUrl(line);
             String requestPath = RequestLineParser.extractRequestPath(url);
+            int contentLength = 0;
+            while (!line.equals("")) {
+                line = bufferedReader.readLine();
+                log.debug("line: {}", line);
+                HttpRequestUtils.Pair header = HttpRequestUtils.parseHeader(line);
+                if (header != null && header.getKey().equals("Content-Length")) {
+                    contentLength = Integer.parseInt(header.getValue());
+                }
+            }
             if (requestPath.equals("/user/create")) {
-                String queryString = RequestLineParser.extractQueryString(url);
-                Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
+                String body = IOUtils.readData(bufferedReader, contentLength);
+                Map<String, String> parameters = HttpRequestUtils.parseQueryString(body);
                 String userId = parameters.get("userId");
                 String password = parameters.get("password");
                 String name = parameters.get("name");
                 String email = parameters.get("email");
                 User user = new User(userId, password, name, email);
-                log.debug("user: {}", user);
-            }
-            while (!line.equals("")) {
-                line = bufferedReader.readLine();
-                log.debug("line: {}", line);
+                log.debug("User 객체 생성: {}", user);
             }
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = getBody(requestPath);
