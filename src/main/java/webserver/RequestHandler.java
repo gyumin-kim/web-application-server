@@ -42,17 +42,21 @@ public class RequestHandler extends Thread {
                     contentLength = Integer.parseInt(header.getValue());
                 }
             }
+            DataOutputStream dos = new DataOutputStream(out);
             if (requestPath.equals("/user/create")) {
-                String body = IOUtils.readData(bufferedReader, contentLength);
-                Map<String, String> parameters = HttpRequestUtils.parseQueryString(body);
+                String data = IOUtils.readData(bufferedReader, contentLength);
+                Map<String, String> parameters = HttpRequestUtils.parseQueryString(data);
                 String userId = parameters.get("userId");
                 String password = parameters.get("password");
                 String name = parameters.get("name");
                 String email = parameters.get("email");
                 User user = new User(userId, password, name, email);
                 log.debug("User 객체 생성: {}", user);
+                byte[] body = getBody("/");
+                response302Header(dos, "/");
+                responseBody(dos, body);
+                return;
             }
-            DataOutputStream dos = new DataOutputStream(out);
             byte[] body = getBody(requestPath);
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -78,6 +82,16 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String location) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + location + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
