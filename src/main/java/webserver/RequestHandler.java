@@ -79,16 +79,15 @@ public class RequestHandler extends Thread {
                 String userId = parameters.get("userId");
                 String password = parameters.get("password");
                 User userById = DataBase.findUserById(userId);
-                String path = "";
-                if (userById.getPassword().equals(password)) {
-                    path = "/";
+                if (userById != null && userById.getPassword().equals(password)) {
+                    String path = "/";
                     byte[] body = getBody(path);
                     response200WithLoginHeader(dos, true);
                     responseBody(dos, body);
                 } else {
-                    path = "/user/login_failed.html";
+                    String path = "/user/login_failed.html";
                     byte[] body = getBody(path);
-                    response200WithLoginHeader(dos, false);
+                    response302Header(dos, path);
                     responseBody(dos, body);
                 }
             } else if (requestPath.equals("/user/list")) {
