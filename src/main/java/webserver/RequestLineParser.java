@@ -2,6 +2,11 @@ package webserver;
 
 public class RequestLineParser {
 
+	public static String extractHttpMethod(final String line) {
+		String[] tokens = line.split(" ");
+		return tokens[0];
+	}
+
 	public static String extractUrl(final String line) {
 		String[] tokens = line.split(" ");
 		return tokens[1];

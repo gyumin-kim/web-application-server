@@ -7,6 +7,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestLineParserTest {
 
+	@DisplayName("요청 라인에서 HTTP 메서드를 추출한다")
+	@Test
+	void parseHttpMethod() {
+		// given
+		String requestLine = "GET /index.html HTTP/1.1";
+
+		// when
+		String method = RequestLineParser.extractHttpMethod(requestLine);
+
+		// then
+		assertThat(method).isEqualTo("GET");
+	}
+
 	@DisplayName("요청 라인에서 URL을 추출한다")
 	@Test
 	void parseUrl() {
