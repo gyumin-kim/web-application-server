@@ -1,17 +1,15 @@
 package webserver;
 
 import db.DataBase;
+import http.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
-import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -28,47 +26,20 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-            String line = bufferedReader.readLine();
-            log.debug("line: {}", line);
-            if (line == null) {
-                return;
-            }
-            String url = RequestLineParser.extractUrl(line);
-            String requestPath = RequestLineParser.extractRequestPath(url);
-            int contentLength = 0;
-            boolean logined = false;
-
-            while (!line.equals("")) {
-                line = bufferedReader.readLine();
-                log.debug("line: {}", line);
-                if (line.contains("Content-Length")) {
-                    HttpRequestUtils.Pair header = HttpRequestUtils.parseHeader(line);
-                    contentLength = Integer.parseInt(header.getValue());
-                }
-                if (line.contains("Cookie")) {
-                    HttpRequestUtils.Pair header = HttpRequestUtils.parseHeader(line);
-                    String cookies = header.getValue();
-                    Map<String, String> cookie = HttpRequestUtils.parseCookies(cookies);
-                    logined = Boolean.parseBoolean(cookie.get("logined"));
-                }
-            }
+            HttpRequest request = new HttpRequest(in);
+            String requestPath = request.getPath();
             if (requestPath.equals("/user/create")) {
-                String data = IOUtils.readData(bufferedReader, contentLength);
-                Map<String, String> parameters = HttpRequestUtils.parseQueryString(data);
-                String userId = parameters.get("userId");
-                String password = parameters.get("password");
-                String name = parameters.get("name");
-                String email = parameters.get("email");
+                String userId = request.getParameter("userId");
+                String password = request.getParameter("password");
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
                 User user = new User(userId, password, name, email);
                 DataBase.addUser(user);
                 DataOutputStream dos = new DataOutputStream(out);
                 response302Header(dos, "/index.html");
             } else if (requestPath.equals("/user/login")) {
-                String data = IOUtils.readData(bufferedReader, contentLength);
-                Map<String, String> parameters = HttpRequestUtils.parseQueryString(data);
-                String userId = parameters.get("userId");
-                String password = parameters.get("password");
+                String userId = request.getParameter("userId");
+                String password = request.getParameter("password");
                 User userById = DataBase.findUserById(userId);
                 if (userById == null) {
                     responseResource(out, "/user/login_failed.html");
@@ -82,7 +53,7 @@ public class RequestHandler extends Thread {
                     responseResource(out, "/user/login_failed.html");
                 }
             } else if (requestPath.equals("/user/list")) {
-                if (!logined) {
+                if (!request.isLogin()) {
                     responseResource(out, "/user/login.html");
                     return;
                 }
@@ -109,7 +80,7 @@ public class RequestHandler extends Thread {
                 response200HeaderCss(dos);
                 responseBody(dos, body);
             } else {
-                responseResource(out, url);
+                responseResource(out, requestPath);
             }
         } catch (IOException e) {
             log.error(e.getMessage());

@@ -1,4 +1,4 @@
-package webserver;
+package http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +16,7 @@ public class HttpRequest {
 
 	private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
 
-	private String method;
-	private String path;
+	private RequestLine requestLine;
 	private Map<String, String> parameters = new HashMap<>();
 	private final Map<String, String> headers = new HashMap<>();
 
@@ -28,7 +27,7 @@ public class HttpRequest {
 			if (line == null) {
 				return;
 			}
-			parseRequestLine(line);
+			requestLine = new RequestLine(line);
 
 			line = bufferedReader.readLine();
 			while (!line.equals("")) {
@@ -37,38 +36,24 @@ public class HttpRequest {
 				headers.put(header.getKey(), header.getValue());
 				line = bufferedReader.readLine();
 			}
-			if (method.equals("POST")) {
+			if (requestLine.getMethod().isPost()) {
 				String contentLength = headers.get("Content-Length");
 				String body = IOUtils.readData(bufferedReader, Integer.parseInt(contentLength));
 				parameters = HttpRequestUtils.parseQueryString(body);
+			} else {
+				parameters = requestLine.getParameters();
 			}
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private void parseRequestLine(final String line) {
-		method = RequestLineParser.extractHttpMethod(line);
-		String url = RequestLineParser.extractUrl(line);
-		if (method.equals("GET")) {
-			if (!url.contains("?")) {
-				path = url;
-				return;
-			}
-			int index = url.indexOf("?");
-			path = url.substring(0, index);
-			parameters = HttpRequestUtils.parseQueryString(url.substring(index + 1));
-			return;
-		}
-		path = url;
-	}
-
-	public String getMethod() {
-		return this.method;
+	public HttpMethod getMethod() {
+		return this.requestLine.getMethod();
 	}
 
 	public String getPath() {
-		return this.path;
+		return this.requestLine.getPath();
 	}
 
 	public String getHeader(final String header) {
@@ -77,5 +62,15 @@ public class HttpRequest {
 
 	public String getParameter(final String parameter) {
 		return this.parameters.get(parameter);
+	}
+
+	public boolean isLogin() {
+		String cookies = this.getHeader("Cookie");
+		Map<String, String> cookie = HttpRequestUtils.parseCookies(cookies);
+		String value = cookie.get("logined");
+		if (value == null) {
+			return false;
+		}
+		return Boolean.parseBoolean(value);
 	}
 }
