@@ -1,5 +1,6 @@
 package webserver;
 
+import http.HttpMethod;
 import http.HttpRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class HttpRequestTest {
 		InputStream in = new FileInputStream(new File(testDirectory + "Http_GET.txt"));
 		HttpRequest request = new HttpRequest(in);
 
-		assertThat(request.getMethod()).isEqualTo("GET");
+		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
 		assertThat(request.getPath()).isEqualTo("/user/create");
 		assertThat(request.getHeader("Connection")).isEqualTo("keep-alive");
 		assertThat(request.getParameter("userId")).isEqualTo("javajigi");
