@@ -12,7 +12,7 @@ public class HttpCookie {
 		this.cookies = HttpRequestUtils.parseCookies(cookieValue);
 	}
 
-	public String getCookie(String name) {
+	public String get(String name) {
 		return cookies.get(name);
 	}
 }

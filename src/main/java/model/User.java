@@ -13,6 +13,10 @@ public class User {
         this.email = email;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -32,5 +36,39 @@ public class User {
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+    }
+
+    public static final class Builder {
+        private String userId;
+        private String password;
+        private String name;
+        private String email;
+
+        private Builder() {
+        }
+
+        public Builder userId(final String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder password(final String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder name(final String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder email(final String email) {
+            this.email = email;
+            return this;
+        }
+
+        public User build() {
+            return new User(this.userId, this.password, this.name, this.email);
+        }
     }
 }

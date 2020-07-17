@@ -8,6 +8,10 @@ import com.google.common.collect.Maps;
 import model.User;
 
 public class DataBase {
+
+    private DataBase() {
+    }
+
     private static final Map<String, User> users = Maps.newHashMap();
 
     public static void addUser(User user) {
