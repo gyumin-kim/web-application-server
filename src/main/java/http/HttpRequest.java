@@ -64,6 +64,10 @@ public class HttpRequest {
 		return this.parameters.get(parameter);
 	}
 
+	public HttpCookie getCookies() {
+		return new HttpCookie(getHeader("Cookie"));
+	}
+
 	public boolean isLogin() {
 		String cookies = this.getHeader("Cookie");
 		Map<String, String> cookie = HttpRequestUtils.parseCookies(cookies);
@@ -73,4 +77,8 @@ public class HttpRequest {
 		}
 		return Boolean.parseBoolean(value);
 	}
+
+//	public HttpSession getSession() {
+//		return null;
+//	}
 }
